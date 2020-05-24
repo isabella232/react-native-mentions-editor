@@ -53,7 +53,7 @@ interface Props {
   textInputProps: TextInputProps,
   updateSuggestions: Function,
   mentionsListProps: ScrollViewProps
-
+  editorHeight: number
   // textInputMinHeight: number
 }
 
@@ -89,7 +89,8 @@ export class Editor extends React.Component<Props, State> {
     placeholder: "",
     renderMentionList: null,
     placeMentionListOnBottom: false,
-    mentionsListProps: {}
+    mentionsListProps: {},
+    editorHeight: 40
   };
 
   mentionsMap = new Map();
@@ -97,7 +98,7 @@ export class Editor extends React.Component<Props, State> {
   previousChar = " ";
   menIndex = 0;
   scroll = null;
-  textInputRef = null;
+  _inputRef = null;
 
   constructor(props) {
     super(props);
@@ -128,7 +129,7 @@ export class Editor extends React.Component<Props, State> {
       },
       menIndex: 0,
       showMentions: false,
-      editorHeight: 72,
+      editorHeight: this.props.editorHeight,
       scrollContentInset: { top: 0, bottom: 0, left: 0, right: 0 },
       placeholder: props.placeholder || "Type something..."
     };
@@ -227,7 +228,7 @@ export class Editor extends React.Component<Props, State> {
     this.setState({
       keyword: lastKeyword
     });
-    
+    console.log(lastKeyword);
     if (this.props.updateSuggestions)
       this.props.updateSuggestions(lastKeyword);
   }
@@ -374,8 +375,8 @@ export class Editor extends React.Component<Props, State> {
     });
     this.stopTracking();
     this.sendMessageToFooter(text);
-    if (this.textInputRef)
-      this.textInputRef.focus();
+    if (this._inputRef)
+      this._inputRef.focus();
   };
 
   handleSelectionChange = ({ nativeEvent: { selection } }) => {
@@ -443,6 +444,7 @@ export class Editor extends React.Component<Props, State> {
   }
 
   formatTextWithMentions(inputText) {
+
     if (inputText === "" || !this.mentionsMap.size) return inputText;
     let formattedText = "";
     let lastIndex = 0;
@@ -473,6 +475,7 @@ export class Editor extends React.Component<Props, State> {
     let text = inputText;
     const prevText = this.state.inputText;
     let selection = { ...this.state.selection };
+
     if (fromAtBtn) {
       //update selection but don't set in state
       //it will be auto set by input
@@ -592,7 +595,7 @@ export class Editor extends React.Component<Props, State> {
         Platform.OS === "ios"
           ? evt.nativeEvent.contentSize.height
           : evt.nativeEvent.contentSize.height - androidTextHeight;
-      let editorHeight = 40;
+      let editorHeight = this.props.editorHeight;
       editorHeight = editorHeight + height;
       this.setState({
         editorHeight
@@ -648,7 +651,7 @@ export class Editor extends React.Component<Props, State> {
             <View style={[{ height: this.state.editorHeight }]}>
               <TextInput
                 {...props.textInputProps}
-                ref={r => this.textInputRef = r}
+                ref={r => this._inputRef = r}
                 style={[styles.input, editorStyles.input]}
                 multiline
                 autoFocus
@@ -669,7 +672,7 @@ export class Editor extends React.Component<Props, State> {
           </ScrollView>
         </View>
         {props.placeMentionListOnBottom && mentionListComponent}
-      </View>
+      </View >
     );
   }
 }
