@@ -53,7 +53,8 @@ interface Props {
   textInputProps: TextInputProps,
   updateSuggestions: Function,
   mentionsListProps: ScrollViewProps
-  editorHeight: number
+  editorHeight: number,
+  triggerLocation: 'new-word-only' | 'anywhere'
   // textInputMinHeight: number
 }
 
@@ -90,7 +91,8 @@ export class Editor extends React.Component<Props, State> {
     renderMentionList: null,
     placeMentionListOnBottom: false,
     mentionsListProps: {},
-    editorHeight: 40
+    editorHeight: 40,
+    triggerLocation: "anywhere"
   };
 
   mentionsMap = new Map();
@@ -121,7 +123,7 @@ export class Editor extends React.Component<Props, State> {
       // textInputHeight: "",
       isTrackingStarted: false,
       suggestionRowHeight: new Animated.Value(0),
-      triggerLocation: "anywhere", //'new-words-only', //anywhere
+      triggerLocation: props.triggerLocation,
       trigger: "@",
       selection: {
         start: 0,
