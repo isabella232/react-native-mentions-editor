@@ -230,7 +230,7 @@ export class Editor extends React.Component<Props, State> {
     this.setState({
       keyword: lastKeyword
     });
-    console.log(lastKeyword);
+
     if (this.props.updateSuggestions)
       this.props.updateSuggestions(lastKeyword);
   }
@@ -377,9 +377,12 @@ export class Editor extends React.Component<Props, State> {
     });
     this.stopTracking();
     this.sendMessageToFooter(text);
+  };
+
+  focus = () => {
     if (this._inputRef)
       this._inputRef.focus();
-  };
+  }
 
   handleSelectionChange = ({ nativeEvent: { selection } }) => {
     const prevSelc = this.state.selection;
@@ -656,7 +659,6 @@ export class Editor extends React.Component<Props, State> {
                 ref={r => this._inputRef = r}
                 style={[styles.input, editorStyles.input]}
                 multiline
-                autoFocus
                 numberOfLines={100}
                 value={null}
                 onBlur={props.toggleEditor}
