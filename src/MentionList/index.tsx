@@ -17,13 +17,13 @@ interface Props {
 }
 
 export class MentionList extends React.PureComponent<Props> {
-  static propTypes = {
-    list: PropTypes.array,
-    editorStyles: PropTypes.object,
-    isTrackingStarted: PropTypes.bool,
-    suggestions: PropTypes.array,
-    keyword: PropTypes.string,
-    onSuggestionTap: PropTypes.func
+  static defaultProps = {
+    list: [],
+    editorStyles: {},
+    isTrackingStarted: false,
+    suggestions: [],
+    keyword: "",
+    onSuggestionTap: () => { }
   };
 
   previousChar = " ";

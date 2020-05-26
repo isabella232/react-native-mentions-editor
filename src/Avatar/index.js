@@ -38,7 +38,7 @@ const alphabetColors = [
 
 const UserThumbnail = props => {
   const { user } = props;
-  let name = user && user.name;
+  let name = user && (user.name || user.username);
   if (!name || name === "") {
     if (user && user.first_name && user.last_name) {
       name = `${user.first_name} ${user.last_name}`;

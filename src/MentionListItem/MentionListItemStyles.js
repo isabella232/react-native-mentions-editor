@@ -28,5 +28,12 @@ export default StyleSheet.create({
   },
   thumbnailChar: {
     fontSize: 16
+  },
+  avatarImage: {
+    width: 35,
+    height: 35,
+    borderRadius: 17.5,
+    borderColor: '#ccc',
+    borderWidth: 1
   }
 });
