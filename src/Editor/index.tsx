@@ -601,7 +601,7 @@ export class Editor extends React.Component<Props, State> {
           ? evt.nativeEvent.contentSize.height
           : evt.nativeEvent.contentSize.height - androidTextHeight;
       let editorHeight = this.props.editorHeight;
-      editorHeight = editorHeight + height;
+      editorHeight = editorHeight + height + 30;
       this.setState({
         editorHeight
       });
@@ -639,7 +639,7 @@ export class Editor extends React.Component<Props, State> {
 
     const selection = (Platform.OS === 'ios' || this.state.inputText.length >= this.state.selection.start) ?
       this.state.selection : { start: this.state.inputText.length, end: this.state.inputText.length };
-
+    
     return (
       <View style={editorStyles.mainContainer}>
         <View style={[styles.container, editorStyles.mainContainer]}>
