@@ -10,70 +10,78 @@ import {
   ViewStyle,
   TextStyle,
   TextInputProps,
-  ScrollViewProps
+  ScrollViewProps,
+  NativeSyntheticEvent,
+  TextInputContentSizeChangeEventData,
+  TextInputSelectionChangeEventData,
 } from "react-native";
 
 import EU from "./EditorUtils";
 import styles from "./EditorStyles";
 import MentionList from "../MentionList";
+import { MentionUser } from "../types";
 
-type listItem = {
-  id: number,
-  username: string,
-  name: string,
-}
+type Selection = {
+  start: number;
+  end: number;
+};
 
-type editorStylesProps = {
-  mainContainer?: ViewStyle,
-  editorContainer?: ViewStyle,
-  inputMaskTextWrapper?: TextStyle,
-  inputMaskText?: TextStyle,
-  input?: TextStyle,
-  mentionsListWrapper?: ViewStyle,
-  mentionListItemWrapper?: ViewStyle,
-  mentionListItemTextWrapper?: ViewStyle,
-  mentionListItemTitle?: TextStyle,
-  mentionListItemUsername?: TextStyle
-  mentionNode?: ViewStyle,
-}
+export type EditorStylesProps = {
+  mainContainer?: ViewStyle;
+  editorContainer?: ViewStyle;
+  inputMaskTextWrapper?: TextStyle;
+  inputMaskText?: TextStyle;
+  input?: TextStyle;
+  mentionsListWrapper?: ViewStyle;
+  mentionListItemWrapper?: ViewStyle;
+  mentionListItemTextWrapper?: ViewStyle;
+  mentionListItemTitle?: TextStyle;
+  mentionListItemUsername?: TextStyle;
+  mentionNode?: ViewStyle;
+};
 
 interface Props {
-  list: Array<listItem>,
-  initialValue: string,
-  clearInput?: boolean,
-  onChange: Function,
-  showEditor?: boolean,
-  toggleEditor?(e: any): {},
-  showMentions?: boolean,
-  onHideMentions?: Function,
-  editorStyles?: editorStylesProps,
-  placeholder?: string,
-  renderMentionList?: Function,
-  placeMentionListOnBottom?: boolean,
-  textInputProps: TextInputProps,
-  updateSuggestions: Function,
-  mentionsListProps: ScrollViewProps
-  editorHeight: number,
-  triggerLocation: 'new-word-only' | 'anywhere'
+  list: MentionUser[];
+  initialValue: string;
+  clearInput?: boolean;
+  onChange: (params: { displayText: string; text: string }) => void;
+  showEditor?: boolean;
+  toggleEditor?(e: any): {};
+  showMentions?: boolean;
+  onHideMentions?: Function;
+  editorStyles?: EditorStylesProps;
+  placeholder?: string;
+  renderMentionList?: Function;
+  placeMentionListOnBottom?: boolean;
+  textInputProps: TextInputProps;
+  updateSuggestions: (s: string) => void;
+  mentionsListProps: ScrollViewProps;
+  editorHeight: number;
+  triggerLocation: "new-word-only" | "anywhere";
   // textInputMinHeight: number
 }
 
 interface State {
-  inputText: string,
-  clearInput: boolean,
-  formattedText: any,
-  keyword: string,
+  inputText: string;
+  clearInput: boolean;
+  formattedText: any;
+  keyword: string;
   // textInputHeight: string,
-  isTrackingStarted: boolean,
-  suggestionRowHeight: any,
-  triggerLocation: 'new-word-only' | 'anywhere'
-  trigger: string,
-  selection: { start: number, end: number },
-  menIndex: number,
-  showMentions: boolean,
-  editorHeight: number,
-  scrollContentInset: { top: number, bottom: number, left: number, right: number },
-  placeholder: string
+  isTrackingStarted: boolean;
+  suggestionRowHeight: any;
+  triggerLocation: "new-word-only" | "anywhere";
+  trigger: string;
+  selection: { start: number; end: number };
+  menIndex: number;
+  showMentions: boolean;
+  editorHeight: number;
+  scrollContentInset: {
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+  };
+  placeholder: string;
 }
 
 export class Editor extends React.Component<Props, State> {
@@ -81,18 +89,18 @@ export class Editor extends React.Component<Props, State> {
     list: [],
     initialValue: "",
     clearInput: false,
-    onChange: () => { },
+    onChange: () => {},
     showEditor: false,
-    toggleEditor: () => { },
+    toggleEditor: () => {},
     showMentions: true,
-    onHideMentions: () => { },
+    onHideMentions: () => {},
     editorStyles: {},
     placeholder: "",
     renderMentionList: null,
     placeMentionListOnBottom: false,
     mentionsListProps: {},
     editorHeight: 40,
-    triggerLocation: "anywhere"
+    triggerLocation: "anywhere",
   };
 
   mentionsMap = new Map();
@@ -102,10 +110,10 @@ export class Editor extends React.Component<Props, State> {
   scroll = null;
   _inputRef = null;
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     let msg = "";
-    let formattedMsg = "";
+    let formattedMsg: string | (string | JSX.Element)[] = "";
     if (props.initialValue && props.initialValue !== "") {
       const { map, newValue } = EU.getMentionsWithInputText(props.initialValue);
       this.mentionsMap = map;
@@ -127,19 +135,22 @@ export class Editor extends React.Component<Props, State> {
       trigger: "@",
       selection: {
         start: 0,
-        end: 0
+        end: 0,
       },
       menIndex: 0,
       showMentions: false,
       editorHeight: this.props.editorHeight,
       scrollContentInset: { top: 0, bottom: 0, left: 0, right: 0 },
-      placeholder: props.placeholder || "Type something..."
+      placeholder: props.placeholder || "Type something...",
     };
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
+  static getDerivedStateFromProps(nextProps: Props, prevState: State) {
     if (nextProps.clearInput !== prevState.clearInput) {
-      return { clearInput: nextProps.clearInput, placeholder: nextProps.placeholder };
+      return {
+        clearInput: nextProps.clearInput,
+        placeholder: nextProps.placeholder,
+      };
     }
 
     if (nextProps.showMentions && !prevState.showMentions) {
@@ -147,20 +158,20 @@ export class Editor extends React.Component<Props, State> {
       return {
         inputText: newInputText,
         showMentions: nextProps.showMentions,
-        placeholder: nextProps.placeholder
+        placeholder: nextProps.placeholder,
       };
     }
 
     if (!nextProps.showMentions) {
       return {
         showMentions: nextProps.showMentions,
-        placeholder: nextProps.placeholder
+        placeholder: nextProps.placeholder,
       };
     }
 
     if (nextProps.placeholder !== prevState.placeholder) {
       return {
-        placeholder: nextProps.placeholder
+        placeholder: nextProps.placeholder,
       };
     }
 
@@ -172,7 +183,7 @@ export class Editor extends React.Component<Props, State> {
     if (this.state.inputText !== "" && this.state.clearInput) {
       this.setState({
         inputText: "",
-        formattedText: ""
+        formattedText: "",
       });
       this.mentionsMap.clear();
     }
@@ -183,7 +194,9 @@ export class Editor extends React.Component<Props, State> {
     }
 
     if (this.props.initialValue !== prevProps.initialValue) {
-      const { map, newValue } = EU.getMentionsWithInputText(this.props.initialValue);
+      const { map, newValue } = EU.getMentionsWithInputText(
+        this.props.initialValue
+      );
       this.mentionsMap = map;
       let msg = newValue;
       let formattedMsg = this.formatText(newValue);
@@ -194,7 +207,7 @@ export class Editor extends React.Component<Props, State> {
     }
   }
 
-  updateMentionsMap(selection, count, shouldAdd) {
+  updateMentionsMap(selection: Selection, count: number, shouldAdd: boolean) {
     this.mentionsMap = EU.updateRemainingMentionsIndexes(
       this.mentionsMap,
       selection,
@@ -203,36 +216,33 @@ export class Editor extends React.Component<Props, State> {
     );
   }
 
-  startTracking(menIndex) {
+  startTracking(menIndex: number) {
     this.isTrackingStarted = true;
     this.menIndex = menIndex;
     this.updateSuggestions("");
     this.setState({
       menIndex,
-      isTrackingStarted: true
+      isTrackingStarted: true,
     });
-
   }
 
   stopTracking() {
     this.isTrackingStarted = false;
     // this.closeSuggestionsPanel();
     this.setState({
-      isTrackingStarted: false
+      isTrackingStarted: false,
     });
     if (this.props.onHideMentions) {
       this.props.onHideMentions();
     }
-
   }
 
-  updateSuggestions(lastKeyword) {
+  updateSuggestions(lastKeyword: string) {
     this.setState({
-      keyword: lastKeyword
+      keyword: lastKeyword,
     });
 
-    if (this.props.updateSuggestions)
-      this.props.updateSuggestions(lastKeyword);
+    if (this.props.updateSuggestions) this.props.updateSuggestions(lastKeyword);
   }
 
   resetTextbox() {
@@ -241,7 +251,7 @@ export class Editor extends React.Component<Props, State> {
     //this.setState({ textInputHeight: this.props.textInputMinHeight });
   }
 
-  identifyKeyword(inputText) {
+  identifyKeyword(inputText: string) {
     /**
      * filter the mentions list
      * according to what user type with
@@ -270,7 +280,7 @@ export class Editor extends React.Component<Props, State> {
     }
   }
 
-  checkForMention(inputText, selection) {
+  checkForMention(inputText: string, selection: Selection) {
     /**
      * Open mentions list if user
      * start typing @ in the string anywhere.
@@ -291,7 +301,7 @@ export class Editor extends React.Component<Props, State> {
     this.identifyKeyword(inputText);
   }
 
-  getInitialAndRemainingStrings(inputText, menIndex) {
+  getInitialAndRemainingStrings(inputText: string, menIndex: number) {
     /**
      * extractInitialAndRemainingStrings
      * this function extract the initialStr and remainingStr
@@ -323,22 +333,22 @@ export class Editor extends React.Component<Props, State> {
      */
     const adjMentIndexes = {
       start: initialStr.length - 1,
-      end: inputText.length - remStr.length - 1
+      end: inputText.length - remStr.length - 1,
     };
     const mentionKeys = EU.getSelectedMentionKeys(
       this.mentionsMap,
       adjMentIndexes
     );
-    mentionKeys.forEach(key => {
+    mentionKeys.forEach((key) => {
       remStr = `@${this.mentionsMap.get(key).username} ${remStr}`;
     });
     return {
       initialStr,
-      remStr
+      remStr,
     };
   }
 
-  onSuggestionTap = user => {
+  onSuggestionTap = (user) => {
     /**
      * When user select a mention.
      * Add a mention in the string.
@@ -365,7 +375,7 @@ export class Editor extends React.Component<Props, State> {
     this.updateMentionsMap(
       {
         start: menEndIndex + 1,
-        end: text.length
+        end: text.length,
       },
       charAdded,
       true
@@ -373,18 +383,19 @@ export class Editor extends React.Component<Props, State> {
 
     this.setState({
       inputText: text,
-      formattedText: this.formatText(text)
+      formattedText: this.formatText(text),
     });
     this.stopTracking();
     this.sendMessageToFooter(text);
   };
 
   focus = () => {
-    if (this._inputRef)
-      this._inputRef.focus();
-  }
+    if (this._inputRef) this._inputRef.focus();
+  };
 
-  handleSelectionChange = ({ nativeEvent: { selection } }) => {
+  handleSelectionChange = ({
+    nativeEvent: { selection },
+  }: NativeSyntheticEvent<TextInputSelectionChangeEventData>) => {
     const prevSelc = this.state.selection;
     let newSelc = { ...selection };
     if (newSelc.start !== newSelc.end) {
@@ -408,7 +419,7 @@ export class Editor extends React.Component<Props, State> {
     this.setState({ selection: newSelc });
   };
 
-  formatMentionNode = (txt, key) => {
+  formatMentionNode = (txt: string, key: string) => {
     const { props } = this;
     const { editorStyles } = props;
 
@@ -416,17 +427,17 @@ export class Editor extends React.Component<Props, State> {
       <Text key={key} style={[styles.mention, editorStyles.mentionNode]}>
         {txt}
       </Text>
-    )
+    );
   };
 
-  formatText(inputText) {
+  formatText(inputText: string) {
     /**
      * Format the Mentions
      * and display them with
      * the different styles
      */
     if (inputText === "" || !this.mentionsMap.size) return inputText;
-    const formattedText = [];
+    const formattedText: (string | JSX.Element)[] = [];
     let lastIndex = 0;
     this.mentionsMap.forEach((men, [start, end]) => {
       const initialStr =
@@ -448,8 +459,7 @@ export class Editor extends React.Component<Props, State> {
     return formattedText;
   }
 
-  formatTextWithMentions(inputText) {
-
+  formatTextWithMentions(inputText: string) {
     if (inputText === "" || !this.mentionsMap.size) return inputText;
     let formattedText = "";
     let lastIndex = 0;
@@ -469,14 +479,14 @@ export class Editor extends React.Component<Props, State> {
     return formattedText;
   }
 
-  sendMessageToFooter(text) {
+  sendMessageToFooter(text: string) {
     this.props.onChange({
       displayText: text,
-      text: this.formatTextWithMentions(text)
+      text: this.formatTextWithMentions(text),
     });
   }
 
-  onChange = (inputText, fromAtBtn = false) => {
+  onChange = (inputText: string, fromAtBtn = false) => {
     let text = inputText;
     const prevText = this.state.inputText;
     let selection = { ...this.state.selection };
@@ -497,7 +507,7 @@ export class Editor extends React.Component<Props, State> {
       let charDeleted = Math.abs(text.length - prevText.length);
       const totalSelection = {
         start: selection.start,
-        end: charDeleted > 1 ? selection.start + charDeleted : selection.start
+        end: charDeleted > 1 ? selection.start + charDeleted : selection.start,
       };
       /**
        * REmove all the selected mentions
@@ -530,7 +540,7 @@ export class Editor extends React.Component<Props, State> {
           this.mentionsMap,
           totalSelection
         );
-        mentionKeys.forEach(key => {
+        mentionKeys.forEach((key) => {
           this.mentionsMap.delete(key);
         });
       }
@@ -542,7 +552,7 @@ export class Editor extends React.Component<Props, State> {
       this.updateMentionsMap(
         {
           start: selection.end,
-          end: prevText.length
+          end: prevText.length,
         },
         charDeleted,
         false
@@ -554,7 +564,7 @@ export class Editor extends React.Component<Props, State> {
       this.updateMentionsMap(
         {
           start: selection.end,
-          end: text.length
+          end: text.length,
         },
         charAdded,
         true
@@ -576,7 +586,7 @@ export class Editor extends React.Component<Props, State> {
 
     this.setState({
       inputText: text,
-      formattedText: this.formatText(text)
+      formattedText: this.formatText(text),
       // selection,
     });
     this.checkForMention(text, selection);
@@ -585,7 +595,9 @@ export class Editor extends React.Component<Props, State> {
     this.sendMessageToFooter(text);
   };
 
-  onContentSizeChange = evt => {
+  onContentSizeChange = (
+    evt: NativeSyntheticEvent<TextInputContentSizeChangeEventData>
+  ) => {
     /**
      * this function will dynamically
      * calculate editor height w.r.t
@@ -603,7 +615,7 @@ export class Editor extends React.Component<Props, State> {
       let editorHeight = this.props.editorHeight;
       editorHeight = editorHeight + height + 30;
       this.setState({
-        editorHeight
+        editorHeight,
       });
     }
   };
@@ -619,33 +631,37 @@ export class Editor extends React.Component<Props, State> {
       keyword: state.keyword,
       isTrackingStarted: state.isTrackingStarted,
       onSuggestionTap: this.onSuggestionTap,
-      editorStyles
+      editorStyles,
     };
 
-    const mentionListComponent = (
-      props.renderMentionList ? (
-        props.renderMentionList(mentionListProps)
-      ) : (
-          <MentionList
-            list={props.list}
-            keyword={state.keyword}
-            isTrackingStarted={state.isTrackingStarted}
-            onSuggestionTap={this.onSuggestionTap}
-            editorStyles={editorStyles}
-            mentionsListProps={props.mentionsListProps}
-          />
-        )
-    )
+    const mentionListComponent = props.renderMentionList ? (
+      props.renderMentionList(mentionListProps)
+    ) : (
+      <MentionList
+        list={props.list}
+        keyword={state.keyword}
+        isTrackingStarted={state.isTrackingStarted}
+        onSuggestionTap={this.onSuggestionTap}
+        editorStyles={editorStyles}
+        mentionsListProps={props.mentionsListProps}
+      />
+    );
 
-    const selection = (Platform.OS === 'ios' || this.state.inputText.length >= this.state.selection.start) ?
-      this.state.selection : { start: this.state.inputText.length, end: this.state.inputText.length };
-    
+    const selection =
+      Platform.OS === "ios" ||
+      this.state.inputText.length >= this.state.selection.start
+        ? this.state.selection
+        : {
+            start: this.state.inputText.length,
+            end: this.state.inputText.length,
+          };
+
     return (
       <View style={editorStyles.mainContainer}>
         <View style={[styles.container, editorStyles.mainContainer]}>
           {!props.placeMentionListOnBottom && mentionListComponent}
           <ScrollView
-            ref={scroll => {
+            ref={(scroll) => {
               this.scroll = scroll;
             }}
             onContentSizeChange={() => {
@@ -656,7 +672,7 @@ export class Editor extends React.Component<Props, State> {
             <View style={[{ height: this.state.editorHeight }]}>
               <TextInput
                 {...props.textInputProps}
-                ref={r => this._inputRef = r}
+                ref={(r) => (this._inputRef = r)}
                 style={[styles.input, editorStyles.input]}
                 multiline
                 numberOfLines={100}
@@ -676,7 +692,7 @@ export class Editor extends React.Component<Props, State> {
           </ScrollView>
         </View>
         {props.placeMentionListOnBottom && mentionListComponent}
-      </View >
+      </View>
     );
   }
 }

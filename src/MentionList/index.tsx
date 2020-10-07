@@ -1,34 +1,40 @@
 import React from "react";
-import PropTypes from "prop-types";
-import { ActivityIndicator, FlatList, Animated, View, ScrollViewProps } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  Animated,
+  View,
+  ScrollViewProps,
+} from "react-native";
 
 import MentionListItem from "../MentionListItem";
 // Styles
 import styles from "../MentionList/MentionListStyles";
+import { MentionUser } from "../types";
+import { EditorStylesProps } from "../Editor";
 
 interface Props {
-  list: any,
-  editorStyles: any,
-  isTrackingStarted: boolean,
-  suggestions: any,
-  keyword: string,
-  onSuggestionTap: Function
-  mentionsListProps: ScrollViewProps
+  list: MentionUser[];
+  editorStyles: EditorStylesProps;
+  isTrackingStarted: boolean;
+  keyword: string;
+  onSuggestionTap: (user: MentionUser) => void;
+  mentionsListProps: ScrollViewProps;
 }
 
 export class MentionList extends React.PureComponent<Props> {
-  static defaultProps = {
+  static defaultProps: Props = {
     list: [],
     editorStyles: {},
     isTrackingStarted: false,
-    suggestions: [],
     keyword: "",
-    onSuggestionTap: () => { }
+    onSuggestionTap: () => {},
+    mentionsListProps: {},
   };
 
   previousChar = " ";
 
-  renderSuggestionsRow = ({ item }) => {
+  renderSuggestionsRow = ({ item }: { item: MentionUser }) => {
     return (
       <MentionListItem
         onSuggestionTap={this.props.onSuggestionTap}
@@ -37,6 +43,7 @@ export class MentionList extends React.PureComponent<Props> {
       />
     );
   };
+
   render() {
     const { props } = this;
 
@@ -45,7 +52,7 @@ export class MentionList extends React.PureComponent<Props> {
     const list = this.props.list;
     const suggestions =
       withoutAtKeyword !== ""
-        ? list.filter(user => user.username.includes(withoutAtKeyword))
+        ? list.filter((user) => user.username.includes(withoutAtKeyword))
         : list;
     if (!isTrackingStarted) {
       return null;
@@ -54,7 +61,7 @@ export class MentionList extends React.PureComponent<Props> {
       <Animated.View
         style={[
           { ...styles.suggestionsPanelStyle },
-          this.props.editorStyles.mentionsListWrapper
+          this.props.editorStyles.mentionsListWrapper,
         ]}
       >
         <FlatList
@@ -68,10 +75,8 @@ export class MentionList extends React.PureComponent<Props> {
           }
           //enableEmptySections={true}
           data={suggestions}
-          keyExtractor={(item: any, index: number) => `${item.id}-${index}`}
-          renderItem={rowData => {
-            return this.renderSuggestionsRow(rowData);
-          }}
+          keyExtractor={(item, index) => `${item.id}-${index}`}
+          renderItem={this.renderSuggestionsRow}
         />
       </Animated.View>
     );

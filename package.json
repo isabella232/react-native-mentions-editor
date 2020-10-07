@@ -12,19 +12,23 @@
   },
   "keywords": [
     "react-native-mentions",
-    "react native mentions",    
+    "react native mentions",
     "react-native",
     "react-component",
     "editor",
     "mobile",
     "ios",
     "android",
-    "mentions"    
+    "mentions"
   ],
   "author": "Muhammad Raza Dar <mrazadar@gmail.here> (https://about.me/mrazadar)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/mrazadar/react-native-mentions-editor/issues"
   },
-  "homepage": "https://github.com/mrazadar/react-native-mentions-editor#readme"
+  "homepage": "https://github.com/mrazadar/react-native-mentions-editor#readme",
+  "devDependencies": {
+    "@types/react": "^16.9.51",
+    "@types/react-native": "^0.63.25"
+  }
 }

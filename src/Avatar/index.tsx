@@ -1,11 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import { View, Text } from "react-native";
+import { View, Text, StyleProp, ViewStyle, TextStyle } from "react-native";
 
 import styles from "./AvatarStyles";
-
-const getFirstChar = str => str.charAt(0).toUpperCase();
+import { MentionUser } from "../types";
+const getFirstChar = (str: string) => str.charAt(0).toUpperCase();
 
 const alphabetColors = [
   "#FFD552",
@@ -33,10 +33,17 @@ const alphabetColors = [
   "#7B9FAB",
   "#1393BD",
   "#5E13BD",
-  "#E208A7"
+  "#E208A7",
 ];
 
-const UserThumbnail = props => {
+type Props = {
+  user?: MentionUser;
+  wrapperStyles?: StyleProp<ViewStyle>;
+  charStyles?: StyleProp<TextStyle>;
+  to?: string;
+};
+
+const UserThumbnail = (props: Props) => {
   const { user } = props;
   let name = user && (user.name || user.username);
   if (!name || name === "") {
@@ -55,20 +62,13 @@ const UserThumbnail = props => {
       style={[
         styles.wrapper,
         props.wrapperStyles,
-        { backgroundColor: bgColor }
+        { backgroundColor: bgColor },
       ]}
     >
       <Text style={[styles.name, props.charStyles]}>{`${text}`}</Text>
     </View>
   );
   return thumbnail;
-};
-
-UserThumbnail.propTypes = {
-  user: PropTypes.object,
-  wrapperStyles: PropTypes.object,
-  charStyles: PropTypes.object,
-  to: PropTypes.string
 };
 
 export default UserThumbnail;

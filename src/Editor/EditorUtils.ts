@@ -3,13 +3,16 @@
  * functions for our Editor
  */
 
-export const displayTextWithMentions = (inputText, formatMentionNode) => {
+export const displayTextWithMentions = (
+  inputText: string,
+  formatMentionNode: (a: string, b: string) => string
+) => {
   /**
    * Use this function to parse mentions markup @[username](id) in the string value.
    */
   if (inputText === "") return null;
   const retLines = inputText.split("\n");
-  const formattedText = [];
+  const formattedText: string[] = [];
   retLines.forEach((retLine, rowIndex) => {
     const mentions = EU.findMentions(retLine);
     if (mentions.length) {
@@ -41,16 +44,16 @@ export const EU = {
     mention: "mention",
     strong: "strong",
     italic: "italic",
-    underline: "underline"
+    underline: "underline",
   },
   isKeysAreSame: (src, dest) => src.toString() === dest.toString(),
-  getLastItemInMap: map => Array.from(map)[map.size - 1],
-  getLastKeyInMap: map => Array.from(map.keys())[map.size - 1],
-  getLastValueInMap: map => Array.from(map.values())[map.size - 1],
+  getLastItemInMap: (map) => Array.from(map)[map.size - 1],
+  getLastKeyInMap: (map) => Array.from(map.keys())[map.size - 1],
+  getLastValueInMap: (map) => Array.from(map.values())[map.size - 1],
   updateRemainingMentionsIndexes: (map, { start, end }, diff, shouldAdd) => {
     var newMap = new Map(map);
     const keys = EU.getSelectedMentionKeys(newMap, { start, end });
-    keys.forEach(key => {
+    keys.forEach((key) => {
       const newKey = shouldAdd
         ? [key[0] + diff, key[1] + diff]
         : [key[0] - diff, key[1] - diff];
@@ -145,8 +148,8 @@ export const EU = {
   between: (x, min, max) => x >= min && x <= max,
   sum: (x, y) => x + y,
   diff: (x, y) => Math.abs(x - y),
-  isEmpty: str => str === "",
-  getMentionsWithInputText: inputText => {
+  isEmpty: (str) => str === "",
+  getMentionsWithInputText: (inputText: string) => {
     /**
      * translate provided string e.g. `Hey @[mrazadar](id:1) this is good work.`
      * populate mentions map with [start, end] : {...user}
@@ -171,7 +174,7 @@ export const EU = {
           const menEndIndex = men.start + (username.length - 1);
           map.set([men.start - endIndexDiff, menEndIndex - endIndexDiff], {
             id: men.id,
-            username: men.username
+            username: men.username,
           });
           //indexes diff with the new formatted string.
           endIndexDiff = endIndexDiff + Math.abs(men.end - menEndIndex);
@@ -191,10 +194,10 @@ export const EU = {
     });
     return {
       map,
-      newValue
+      newValue,
     };
   },
-  findMentions: val => {
+  findMentions: (val: string) => {
     /**
      * Both Mentions and Selections are 0-th index based in the strings
      * meaning their indexes in the string start from 0
@@ -204,18 +207,23 @@ export const EU = {
      */
     let reg = /@\[([^\]]+?)\]\(id:([^\]]+?)\)/gim;
     let indexes = [];
+    let match: RegExpExecArray;
     while ((match = reg.exec(val))) {
       indexes.push({
         start: match.index,
         end: reg.lastIndex - 1,
         username: match[1],
         id: match[2],
-        type: EU.specialTagsEnum.mention
+        type: EU.specialTagsEnum.mention,
       });
     }
     return indexes;
   },
-  whenTrue: (next, current, key) => {
+  whenTrue: (
+    next: { [key: string]: any },
+    current: { [key: string]: any },
+    key: string
+  ) => {
     /**
      * whenTrue function will be used to check the
      * boolean props for the component
@@ -229,7 +237,7 @@ export const EU = {
      */
     return next[key] && next[key] !== current[key];
   },
-  displayTextWithMentions: displayTextWithMentions
+  displayTextWithMentions: displayTextWithMentions,
 };
 
 export default EU;

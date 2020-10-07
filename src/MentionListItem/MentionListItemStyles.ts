@@ -12,28 +12,28 @@ export default StyleSheet.create({
     height: 50,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderColor: "rgba(0, 0, 0, 0.05)"
+    borderColor: "rgba(0, 0, 0, 0.05)",
   },
   text: {
     alignSelf: "center",
-    marginLeft: 12
+    marginLeft: 12,
   },
   title: {
     fontSize: 16,
-    color: "rgba(0, 0, 0, 0.8)"
+    color: "rgba(0, 0, 0, 0.8)",
   },
   thumbnailWrapper: {
     width: 35,
-    height: 35
+    height: 35,
   },
   thumbnailChar: {
-    fontSize: 16
+    fontSize: 16,
   },
   avatarImage: {
     width: 35,
     height: 35,
     borderRadius: 17.5,
-    borderColor: '#ccc',
-    borderWidth: 1
-  }
+    borderColor: "#ccc",
+    borderWidth: 1,
+  },
 });
