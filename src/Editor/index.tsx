@@ -19,12 +19,7 @@ import {
 import EU from "./EditorUtils";
 import styles from "./EditorStyles";
 import MentionList from "../MentionList";
-import { MentionUser } from "../types";
-
-type Selection = {
-  start: number;
-  end: number;
-};
+import { MentionsMap, MentionUser, Selection } from "../types";
 
 export type EditorStylesProps = {
   mainContainer?: ViewStyle;
@@ -71,7 +66,7 @@ interface State {
   suggestionRowHeight: any;
   triggerLocation: "new-word-only" | "anywhere";
   trigger: string;
-  selection: { start: number; end: number };
+  selection: Selection;
   menIndex: number;
   showMentions: boolean;
   editorHeight: number;
@@ -103,7 +98,7 @@ export class Editor extends React.Component<Props, State> {
     triggerLocation: "anywhere",
   };
 
-  mentionsMap = new Map();
+  mentionsMap: MentionsMap = new Map();
   isTrackingStarted = false;
   previousChar = " ";
   menIndex = 0;
@@ -348,7 +343,7 @@ export class Editor extends React.Component<Props, State> {
     };
   }
 
-  onSuggestionTap = (user) => {
+  onSuggestionTap = (user: MentionUser) => {
     /**
      * When user select a mention.
      * Add a mention in the string.
@@ -397,7 +392,7 @@ export class Editor extends React.Component<Props, State> {
     nativeEvent: { selection },
   }: NativeSyntheticEvent<TextInputSelectionChangeEventData>) => {
     const prevSelc = this.state.selection;
-    let newSelc = { ...selection };
+    let newSelc: Selection = { ...selection };
     if (newSelc.start !== newSelc.end) {
       /**
        * if user make or remove selection
@@ -489,7 +484,7 @@ export class Editor extends React.Component<Props, State> {
   onChange = (inputText: string, fromAtBtn = false) => {
     let text = inputText;
     const prevText = this.state.inputText;
-    let selection = { ...this.state.selection };
+    let selection: Selection = { ...this.state.selection };
 
     if (fromAtBtn) {
       //update selection but don't set in state
@@ -505,7 +500,7 @@ export class Editor extends React.Component<Props, State> {
        */
 
       let charDeleted = Math.abs(text.length - prevText.length);
-      const totalSelection = {
+      const totalSelection: Selection = {
         start: selection.start,
         end: charDeleted > 1 ? selection.start + charDeleted : selection.start,
       };

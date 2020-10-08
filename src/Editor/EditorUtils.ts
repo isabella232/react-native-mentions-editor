@@ -3,6 +3,8 @@
  * functions for our Editor
  */
 
+import { MentionMapKey, MentionsMap, Selection } from "../types";
+
 export const displayTextWithMentions = (
   inputText: string,
   formatMentionNode: (a: string, b: string) => string
@@ -46,15 +48,22 @@ export const EU = {
     italic: "italic",
     underline: "underline",
   },
-  isKeysAreSame: (src, dest) => src.toString() === dest.toString(),
-  getLastItemInMap: (map) => Array.from(map)[map.size - 1],
-  getLastKeyInMap: (map) => Array.from(map.keys())[map.size - 1],
-  getLastValueInMap: (map) => Array.from(map.values())[map.size - 1],
-  updateRemainingMentionsIndexes: (map, { start, end }, diff, shouldAdd) => {
-    var newMap = new Map(map);
+  isKeysAreSame: (src: MentionMapKey, dest: MentionMapKey) =>
+    src.toString() === dest.toString(),
+  getLastItemInMap: (map: MentionsMap) => Array.from(map)[map.size - 1],
+  getLastKeyInMap: (map: MentionsMap) => Array.from(map.keys())[map.size - 1],
+  getLastValueInMap: (map: MentionsMap) =>
+    Array.from(map.values())[map.size - 1],
+  updateRemainingMentionsIndexes: (
+    map: MentionsMap,
+    { start, end }: Selection,
+    diff: number,
+    shouldAdd: boolean
+  ) => {
+    var newMap: MentionsMap = new Map(map);
     const keys = EU.getSelectedMentionKeys(newMap, { start, end });
     keys.forEach((key) => {
-      const newKey = shouldAdd
+      const newKey: MentionMapKey = shouldAdd
         ? [key[0] + diff, key[1] + diff]
         : [key[0] - diff, key[1] - diff];
       const value = newMap.get(key);
@@ -64,7 +73,7 @@ export const EU = {
     });
     return newMap;
   },
-  getSelectedMentionKeys: (map, { start, end }) => {
+  getSelectedMentionKeys: (map: MentionsMap, { start, end }: Selection) => {
     // mention [2, 5],
     // selection [3, 6]
     const mantionKeys = [...map.keys()];
@@ -73,20 +82,24 @@ export const EU = {
     );
     return keys;
   },
-  findMentionKeyInMap: (map, cursorIndex) => {
+  findMentionKeyInMap: (map: MentionsMap, cursorIndex: number) => {
     // const keys = Array.from(map.keys())
     // OR
     const keys = [...map.keys()];
     const key = keys.filter(([a, b]) => EU.between(cursorIndex, a, b))[0];
     return key;
   },
-  addMenInSelection: (selection, prevSelc, mentions) => {
+  addMenInSelection: (
+    selection: Selection,
+    prevSelc: Selection,
+    mentions: MentionsMap
+  ) => {
     /**
      * Both Mentions and Selections are 0-th index based in the strings
      * meaning their indexes in the string start from 0
      * While user made a selection automatically add mention in the selection.
      */
-    const sel = { ...selection };
+    const sel: Selection = { ...selection };
     mentions.forEach((value, [menStart, menEnd]) => {
       if (EU.diff(prevSelc.start, prevSelc.end) < EU.diff(sel.start, sel.end)) {
         //user selecting.
@@ -113,10 +126,10 @@ export const EU = {
     return sel;
   },
   moveCursorToMentionBoundry: (
-    selection,
-    prevSelc,
-    mentions,
-    isTrackingStarted
+    selection: Selection,
+    prevSelc: Selection,
+    mentions: MentionsMap,
+    isTrackingStarted: boolean
   ) => {
     /**
      * Both Mentions and Selections are 0-th index based in the strings
@@ -124,7 +137,7 @@ export const EU = {
      * or to the end of mention based on user traverse direction.
      */
 
-    const sel = { ...selection };
+    const sel: Selection = { ...selection };
     if (isTrackingStarted) return sel;
     mentions.forEach((value, [menStart, menEnd]) => {
       if (prevSelc.start > sel.start) {
@@ -145,10 +158,10 @@ export const EU = {
     });
     return sel;
   },
-  between: (x, min, max) => x >= min && x <= max,
-  sum: (x, y) => x + y,
-  diff: (x, y) => Math.abs(x - y),
-  isEmpty: (str) => str === "",
+  between: (x: number, min: number, max: number) => x >= min && x <= max,
+  sum: (x: number, y: number) => x + y,
+  diff: (x: number, y: number) => Math.abs(x - y),
+  isEmpty: (str: string) => str === "",
   getMentionsWithInputText: (inputText: string) => {
     /**
      * translate provided string e.g. `Hey @[mrazadar](id:1) this is good work.`
@@ -156,7 +169,7 @@ export const EU = {
      * translate inputText to desired format; `Hey @mrazadar this is good work.`
      */
 
-    const map = new Map();
+    const map: MentionsMap = new Map();
     let newValue = "";
 
     if (inputText === "") return null;
